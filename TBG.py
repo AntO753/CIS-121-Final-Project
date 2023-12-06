@@ -2,6 +2,14 @@ import random
 import time
 
 
+''' ToDO
+
+room3, room4, room5 battle functions (room3())
+    each room should handle defeat with map object
+set battles in map.init
+
+'''
+
 class Player:
     def __init__(self, name, type, hp):
         self.name = name
@@ -22,6 +30,8 @@ class Thief(Player):
 class Room:
     def __init__(self, room_num, north=None, west=None, east=None, south=None) -> None:
         self.room_num = room_num
+        self.battle = None
+        self.defeated = False
         self.north = north
         self.west = west
         self.east = east
@@ -35,6 +45,10 @@ class Room:
         self.west = west
     def add_south(self, south):
         self.south = south
+    def set_battle(self, battle):
+        self.battle = battle
+    def defeat(self):
+        self.defeated = True
     def __str__(self) -> str:
         return self.room_num
     
@@ -60,6 +74,9 @@ class Map:
         self.rooms['room_3'].add_west(self.rooms['room_1'])
         self.rooms['room_4'].add_north(self.rooms['room_1'])
         self.rooms['room_5'].add_east(self.rooms['room_1'])
+        # set battles
+        self.rooms['room_1'].set_battle(room1)
+        self.rooms['room_2'].set_battle(room2)
 
     def travel(self, direction):
         if direction == 'north' and self.player_location.north != None:
@@ -157,26 +174,21 @@ def battle(player, enemy):
 
     return
 
-def move_through_rooms(player, current_room, direction):
-    next_room = {
-        'north': 'room_2',
-        'south': 'room_1' if current_room == 'room_2' else 'room_3',
-        'east': 'room_1' if current_room == 'room_3' else 'room_4',
-        'west': 'room_1' if current_room == 'room_4' else 'room_5',
-    }.get(direction.lower())
-
-    current_room.remove(player)
-    rooms[next_room].append(player)
-    print(f"You moved {direction} to {next_room}")
-    return True
+def move_through_rooms(direction: str):
+    map.travel(direction)
 
 def room1():
+    room_num = 'room_1'
+    if map.rooms[room_num].defeated:
+        print("The Goon is dead.")
+        return
     print("You enter the first room in the thieves hide out and realize there's someone waiting there for you.\n")
     v1 = Thief("Goon", "Super sword", 1500, "1")
     v1.intro_self()
 
     battle(p1, v1)
     if p1.hp > 0:
+        map.rooms[room_num].defeat()
         player_weapons.append("Super Sword")
         print('Congrats! You beat the Goon! You have received a Super Sword! It has been added to your inventory.')
     else:
@@ -184,7 +196,7 @@ def room1():
             deathChoice = str(input('Do you want to try over again? Please enter "yes" or "no": '))
             if deathChoice == 'yes':
                 p1.hp = 3000
-                return room1()
+                return map.player_location.battle()
             elif deathChoice == 'no':
                 print('Better luck next time!')
                 exit()
@@ -193,12 +205,17 @@ def room1():
     return
 
 def room2():
+    room_num = 'room_2'
+    if map.rooms[room_num].defeated:
+        print("The Hooligan is dead.")
+        return
     print("You enter the second room in the thieves hide out and realize there's someone waiting there for you.\n")
     v2 = Thief("Hooligan", "Gauntlets", 1800, "2")
     v2.intro_self()
 
     battle(p1, v2)
     if p1.hp > 0:
+        map.rooms[room_num].defeat()
         player_weapons.append("Gauntlets")
         print('Congrats! You beat the Hooligan! You have received Gauntlets! They have been added to your inventory.')
     else:
@@ -206,7 +223,7 @@ def room2():
             deathChoice = str(input('Do you want to try over again? Please enter "yes" or "no": '))
             if deathChoice == 'yes':
                 p1.hp = 3000
-                return room2()
+                return map.player_location.battle()
             elif deathChoice == 'no':
                 print('Better luck next time!')
                 exit()
@@ -214,23 +231,18 @@ def room2():
                 print('Please enter "yes" or "no" only. Try again.')
     return
 
-def zelda():
-    room1()
+def hestia(map: Map):
+    map.player_location.battle()
+    userDirection = None
     while True:
         userDirection = str(input('Please enter a direction to move to another room: '))
         if userDirection.lower() in ['north', 'south', 'east', 'west']:
             break
         else:
             print('Please enter a valid direction! You may enter "North", "South", "East" or "West". Try again!')
-    move_through_rooms(p1, rooms['room_1'], userDirection)
-    room2()
-    while True:
-        userDirection = str(input('Please enter a direction to move to another room: '))
-        if userDirection.lower() in ['south']:
-            break
-        else:
-            print('Please enter a valid direction! You may only move South. Try again!')
-    move_through_rooms(p1, rooms['room_2'], userDirection)
+    move_through_rooms(userDirection)
+    hestia(map)
+
 
 player_name = input("Enter your Name: ")
 
@@ -247,16 +259,10 @@ player_hp = 3000
 p1 = Player(player_name, player_type, player_hp)
 player_weapons = ["Lazer Pistol"]
 
-rooms = {
-    'room_1': [p1],
-    'room_2': [],
-    'room_3': [],
-    'room_4': [],
-    'room_5': []
-}
+map = Map(p1)
 print("\n\nWelcome to the kingdom of Hestia. For years Hestia has thrived because of a mysterious crystal rightfully dubbed: The sacred Jewel.")
 print("The Sacred Jewel is the central power source for the kingdom. It provides energy for every house including the castle. Unfortunately,")
 print("Theives have managed to steal the Sacred Jewel and take it back to their own hide out.")
 print("As the Hero of Hestia it's up to you to navigate through the thieves hideout and the take the Jewel back. Without it Hestia will remain in darkness...\n\n\n")
-zelda()
+hestia(map)
 

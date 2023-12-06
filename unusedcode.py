@@ -199,3 +199,12 @@
 #                             print("They're a good shot...")
 
 #     return
+
+    # room2()
+    # while True:
+    #     userDirection = str(input('Please enter a direction to move to another room: '))
+    #     if userDirection.lower() in ['south']:
+    #         break
+    #     else:
+    #         print('Please enter a valid direction! You may only move South. Try again!')
+    # move_through_rooms(userDirection)

@@ -64,5 +64,7 @@ def tests():
     map.travel('south')
     map.travel('south')
     print(map.player_location)
+    map.travel('south')
+    print(map.player_location)
 
 tests()
