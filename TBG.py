@@ -15,7 +15,14 @@ class Player:
         self.name = name
         self.type = type
         self.hp = hp
+        self.weapons = []
 
+    def get_weapons(self):
+        return self.weapons
+
+    def add_weapons(self, weapon):
+        self.weapons.append(weapon)
+        return
 
 class Thief(Player):
     def __init__(self, name, weapon, hp, room_number):
@@ -77,6 +84,9 @@ class Map:
         # set battles
         self.rooms['room_1'].set_battle(room1)
         self.rooms['room_2'].set_battle(room2)
+        self.rooms['room_3'].set_battle(room3)
+        self.rooms['room_4'].set_battle(room4)
+        self.rooms['room_5'].set_battle(room5)
 
     def travel(self, direction):
         if direction == 'north' and self.player_location.north != None:
@@ -92,17 +102,24 @@ class Map:
             return
         print(f'You have entered room {self.player_location}')
 
-def weapons_choice():
-    if len(player_weapons) > 1:
+def weapons_choice(player):
+    if  len(player.get_weapons()) > 1:
         num = 1
-        for weapon in player_weapons:
+        for weapon in player.get_weapons():
             num += 1
             print(f"{num}. {weapon}")
         choose_weapon = int(
             input("Choose the number asscoiated with the weapon you want to choose: "))
+        while True:
+            try:
+                choose_weapon 
+            except ValueError:
+                print("please enter a valid weapon...")
+            else:
+                return choose_weapon
     else:
         choose_weapon = 1
-        print("Your Weapon to start is a Lazer Pistol.")
+        print(f"Your Weapon to start is a TBD.")
     return choose_weapon
 
 
@@ -144,21 +161,21 @@ def perform_attack(attacker, defender, weapon):
 
 def battle(player, enemy):
     print(f"{player.name} vs {enemy.name}")
-    player_weapon = weapons_choice()
+    player_weapon = weapons_choice(p1)
     while player.hp > 0 and enemy.hp > 0:
         print(f"\n{player.name}: {player.hp}")
         print(f"{enemy.name}: {enemy.hp}\n")
 
         while True:
             player_choice = input(
-                "Would you like to attack? (Enter yes or no): ")
-            if player_choice == 'yes' or player_choice == 'no':
+                "Would you like to attack? (Enter 'y' or 'n'): ")
+            if player_choice == 'y' or player_choice == 'n':
                 break
             else:
                 print('Please enter a valid choice!')
         
 
-        if player_choice.lower() == "yes":
+        if player_choice.lower() == "y":
             perform_attack(player, enemy, player_weapon)
 
         if enemy.hp > 0:
@@ -189,19 +206,20 @@ def room1():
     battle(p1, v1)
     if p1.hp > 0:
         map.rooms[room_num].defeat()
-        player_weapons.append("Super Sword")
+        p1.add_weapons(v1.weapon)
         print('Congrats! You beat the Goon! You have received a Super Sword! It has been added to your inventory.')
+        print(p1.get_weapons())
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "yes" or "no": '))
-            if deathChoice == 'yes':
+            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
-            elif deathChoice == 'no':
+            elif deathChoice == 'n':
                 print('Better luck next time!')
                 exit()
             else:
-                print('Please enter "yes" or "no" only. Try again.')
+                print('Please enter "y" or "n" only. Try again.')
     return
 
 def room2():
@@ -216,23 +234,110 @@ def room2():
     battle(p1, v2)
     if p1.hp > 0:
         map.rooms[room_num].defeat()
-        player_weapons.append("Gauntlets")
+        p1.add_weapons(v2.weapon)
         print('Congrats! You beat the Hooligan! You have received Gauntlets! They have been added to your inventory.')
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "yes" or "no": '))
-            if deathChoice == 'yes':
+            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
-            elif deathChoice == 'no':
+            elif deathChoice == 'n':
                 print('Better luck next time!')
                 exit()
             else:
-                print('Please enter "yes" or "no" only. Try again.')
+                print('Please enter "y" or "n" only. Try again.')
+    return
+
+def room3():
+    room_num = 'room_3'
+    if map.rooms[room_num].defeated:
+        print("The Thug is dead.")
+        return
+    print("You enter the third room in the thieves hide out and realize there's someone waiting there for you.\n")
+    v3 = Thief("Thug", "Rifle", 2100, "3")
+    v3.intro_self()
+
+    battle(p1, v3)
+    if p1.hp > 0:
+        map.rooms[room_num].defeat()
+        p1.add_weapons(v3.weapon)
+        print('Congrats! You beat the Hooligan! You have received a Rifle! It has been added to your inventory.')
+    else:
+        while True:
+            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            if deathChoice == 'y':
+                p1.hp = 3000
+                return map.player_location.battle()
+            elif deathChoice == 'n':
+                print('Better luck next time!')
+                exit()
+            else:
+                print('Please enter "y" or "n" only. Try again.')
+    return
+
+def room4():
+    room_num = 'room_4'
+    if map.rooms[room_num].defeated:
+        print("The Bozo is dead.")
+        return
+    print("You enter the fourth room in the thieves hide out and realize there's someone waiting there for you.\n")
+    v4 = Thief("Bozo", "Excalibur", 2400, "4")
+    v4.intro_self()
+
+    battle(p1, v4)
+    if p1.hp > 0:
+        map.rooms[room_num].defeat()
+        p1.add_weapons(v4.weapon)
+        print('Congrats! You beat the Bozo! You have received the Legendary Sword Excalibur! It has been added to your inventory.')
+    else:
+        while True:
+            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            if deathChoice == 'y':
+                p1.hp = 3000
+                return map.player_location.battle()
+            elif deathChoice == 'n':
+                print('Better luck next time!')
+                exit()
+            else:
+                print('Please enter "y" or "n" only. Try again.')
+    return
+
+def room5():
+    room_num = 'room_5'
+    if map.rooms[room_num].defeated:
+        print("The Bozo is dead.")
+        return
+    print("You enter the last room in the thieves hide out. You hear a loud roar in the distance.\n")
+    v5 = Thief("DOPE", "Overlord Sword", 5000, "5")
+    v5.intro_self()
+
+    battle(p1, v5)
+    if p1.hp > 0:
+        map.rooms[room_num].defeat()
+        p1.add_weapons(v5.weapon)
+        print('''Congrats! You beat DOPE! You have received the even more Legendaryer Overlord Sword! It has been added to your inventory.''')
+    else:
+        while True:
+            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            if deathChoice == 'y':
+                p1.hp = 3000
+                return map.player_location.battle()
+            elif deathChoice == 'n':
+                print('Better luck next time!')
+                exit()
+            else:
+                print('Please enter "y" or "n" only. Try again.')
     return
 
 def hestia(map: Map):
     map.player_location.battle()
+    while True:
+        if 'Overlord Sword' not in p1.get_weapons():
+            break
+        else:
+            print('Congratulations! You have recovered the Sacred Jewel from the Thieves. The kingdom of Hestia has been saved!\nEND GAME')
+            exit()
     userDirection = None
     while True:
         userDirection = str(input('Please enter a direction to move to another room: '))
