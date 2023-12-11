@@ -1,16 +1,15 @@
 import random
-import time
-
 
 ''' ToDO
 
-room3, room4, room5 battle functions (room3())
-    each room should handle defeat with map object
-set battles in map.init
+Discuss presentation
 
 '''
 
+
 class Player:
+    healTries = 4
+
     def __init__(self, name, type, hp):
         self.name = name
         self.type = type
@@ -24,6 +23,20 @@ class Player:
         self.weapons.append(weapon)
         return
 
+    def heal(self):
+        randomHeal = random.randint(1, 301)
+        if self.healTries > 0:
+            self.healTries = self.healTries - 1
+            self.hp = self.hp + randomHeal
+            print(
+                f'You healed {randomHeal} health points! You now have {self.hp} health points!')
+            return True
+        elif p1.hp == 0:
+            return None
+        elif self.healTries == 0:
+            print('Sorry! You cannot heal anymore!')
+
+
 class Thief(Player):
     def __init__(self, name, weapon, hp, room_number):
         super().__init__(name, "Thief", hp)
@@ -33,7 +46,8 @@ class Thief(Player):
     def intro_self(self):
         print(
             f"My name is {self.name} You won't be able to make it past room {self.room}!")
-        
+
+
 class Room:
     def __init__(self, room_num, north=None, west=None, east=None, south=None) -> None:
         self.room_num = room_num
@@ -46,20 +60,26 @@ class Room:
 
     def add_north(self, north):
         self.north = north
+
     def add_east(self, east):
         self.east = east
+
     def add_west(self, west):
         self.west = west
+
     def add_south(self, south):
         self.south = south
+
     def set_battle(self, battle):
         self.battle = battle
+
     def defeat(self):
         self.defeated = True
+
     def __str__(self) -> str:
         return self.room_num
-    
-    
+
+
 class Map:
     rooms = {
         'room_1': Room('1'),
@@ -69,6 +89,7 @@ class Map:
         'room_5': Room('5')
     }
     player_location = None
+
     def __init__(self, player) -> None:
         self.player = player
         self.player_location = self.rooms['room_1']
@@ -102,39 +123,47 @@ class Map:
             return
         print(f'You have entered room {self.player_location}')
 
+
 def weapons_choice(player):
-    if  len(player.get_weapons()) > 1:
-        num = 1
-        for weapon in player.get_weapons():
+    weapons = player.get_weapons()
+    if len(weapons) > 1:
+        num = 0
+        for weapon in weapons:
             num += 1
             print(f"{num}. {weapon}")
-        choose_weapon = int(
-            input("Choose the number asscoiated with the weapon you want to choose: "))
         while True:
             try:
-                choose_weapon 
+                choose_weapon = int(
+                    input("Choose the number asscoiated with the weapon you want to choose: "))
+                if 1 <= choose_weapon <= len(weapons):
+                    return weapons[choose_weapon - 1]
+                else:
+                    print("please enter a valid weapon number...")
             except ValueError:
-                print("please enter a valid weapon...")
-            else:
-                return choose_weapon
+                print("please enter a valid weapon number...")
     else:
-        choose_weapon = 1
-        print(f"Your Weapon to start is a TBD.")
-    return choose_weapon
+        if player.type.lower() == "shooter":
+            player.add_weapons("Lazer Pistol")
+        elif player.type.lower() == "boxer":
+            player.add_weapons("Enchanted  Brass")
+        elif player.type.lower() == "sword-fighter":
+            player.add_weapons("Dagger")
+        print(f"Your Weapon to start is a {weapons[0]}")
+    return weapons[0]
 
 
 def damage(player_type, weapon):
     damage = random.randint(0, 901)
     if player_type == "boxer":
-        if weapon == 3 or weapon == 6 or weapon == 9:
+        if weapon == "Enchanted brass" or weapon == "Gauntlets":
             if damage != 0:
                 damage += damage * .10
     elif player_type == "sword-fighter":
-        if weapon == 2 or weapon == 4 or weapon == 8:
+        if weapon == "Dagger" or weapon == "Excalibur" or weapon == "Overlord Sword":
             if damage != 0:
                 damage += damage * .10
     elif player_type == "shooter":
-        if weapon == 1 or weapon == 5 or weapon == 7:
+        if weapon == "Lazer Pistol" or weapon == "Proton Rifle" or weapon == "Plasma SMG":
             if damage != 0:
                 damage += damage * .10
     return damage
@@ -159,24 +188,50 @@ def perform_attack(attacker, defender, weapon):
     return
 
 
+def perform_defense(attacker, defender, weapon):
+    damage_value = damage(attacker.type, weapon)
+    attacker_name = attacker.name
+    defender_name = defender.name
+
+    defender.hp -= damage_value/2
+    print(f"{attacker_name} attacks {defender_name} and does {damage_value:.2f}pt damage")
+    print(f"{attacker_name} noramlly would do {damage_value:.2f} but you defended so {attacker_name} did {damage_value/2:.2f} instead!")
+
+    if damage_value == 0:
+        print(f"{attacker_name} missed...")
+    elif 20 < damage_value < 800:
+        print(f"{attacker_name} got a hit.")
+    elif damage_value >= 800:
+        print("CRITICAL HIT!")
+    else:
+        print("hit wasn't effective.")
+    return
+
+
 def battle(player, enemy):
     print(f"{player.name} vs {enemy.name}")
     player_weapon = weapons_choice(p1)
+    print(f"You chose {player_weapon}!")
     while player.hp > 0 and enemy.hp > 0:
-        print(f"\n{player.name}: {player.hp}")
-        print(f"{enemy.name}: {enemy.hp}\n")
+        print(f"\n{player.name}: {player.hp:.2f}")
+        print(f"{enemy.name}: {enemy.hp:.2f}\n")
 
         while True:
             player_choice = input(
-                "Would you like to attack? (Enter 'y' or 'n'): ")
-            if player_choice == 'y' or player_choice == 'n':
+                "Will you attack or defend? (Enter 'A' or 'D'): ")
+            if player_choice.lower() == 'a' or player_choice.lower() == 'd':
                 break
             else:
                 print('Please enter a valid choice!')
-        
 
-        if player_choice.lower() == "y":
+        if player_choice.lower() == "a":
             perform_attack(player, enemy, player_weapon)
+
+        if player_choice.lower() == "a":
+            perform_attack(player, enemy, player_weapon)
+        if player_choice.lower() == 'd':
+            perform_defense(enemy, player, enemy.weapon)
+            p1.heal()
 
         if enemy.hp > 0:
             print(f"{enemy.name} is attacking...")
@@ -191,8 +246,10 @@ def battle(player, enemy):
 
     return
 
+
 def move_through_rooms(direction: str):
     map.travel(direction)
+
 
 def room1():
     room_num = 'room_1'
@@ -200,7 +257,7 @@ def room1():
         print("The Goon is dead.")
         return
     print("You enter the first room in the thieves hide out and realize there's someone waiting there for you.\n")
-    v1 = Thief("Goon", "Super sword", 1500, "1")
+    v1 = Thief("Goon", "Proton Rifle", 1500, "1")
     v1.intro_self()
 
     battle(p1, v1)
@@ -211,7 +268,8 @@ def room1():
         print(p1.get_weapons())
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            deathChoice = str(
+                input('Do you want to try over again? Please enter "y" or "n": '))
             if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
@@ -221,6 +279,7 @@ def room1():
             else:
                 print('Please enter "y" or "n" only. Try again.')
     return
+
 
 def room2():
     room_num = 'room_2'
@@ -238,7 +297,8 @@ def room2():
         print('Congrats! You beat the Hooligan! You have received Gauntlets! They have been added to your inventory.')
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            deathChoice = str(
+                input('Do you want to try over again? Please enter "y" or "n": '))
             if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
@@ -249,13 +309,14 @@ def room2():
                 print('Please enter "y" or "n" only. Try again.')
     return
 
+
 def room3():
     room_num = 'room_3'
     if map.rooms[room_num].defeated:
         print("The Thug is dead.")
         return
     print("You enter the third room in the thieves hide out and realize there's someone waiting there for you.\n")
-    v3 = Thief("Thug", "Rifle", 2100, "3")
+    v3 = Thief("Thug", "Plasma SMG", 2100, "3")
     v3.intro_self()
 
     battle(p1, v3)
@@ -265,7 +326,8 @@ def room3():
         print('Congrats! You beat the Hooligan! You have received a Rifle! It has been added to your inventory.')
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            deathChoice = str(
+                input('Do you want to try over again? Please enter "y" or "n": '))
             if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
@@ -275,6 +337,7 @@ def room3():
             else:
                 print('Please enter "y" or "n" only. Try again.')
     return
+
 
 def room4():
     room_num = 'room_4'
@@ -292,7 +355,8 @@ def room4():
         print('Congrats! You beat the Bozo! You have received the Legendary Sword Excalibur! It has been added to your inventory.')
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            deathChoice = str(
+                input('Do you want to try over again? Please enter "y" or "n": '))
             if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
@@ -302,6 +366,7 @@ def room4():
             else:
                 print('Please enter "y" or "n" only. Try again.')
     return
+
 
 def room5():
     room_num = 'room_5'
@@ -319,7 +384,8 @@ def room5():
         print('''Congrats! You beat DOPE! You have received the even more Legendaryer Overlord Sword! It has been added to your inventory.''')
     else:
         while True:
-            deathChoice = str(input('Do you want to try over again? Please enter "y" or "n": '))
+            deathChoice = str(
+                input('Do you want to try over again? Please enter "y" or "n": '))
             if deathChoice == 'y':
                 p1.hp = 3000
                 return map.player_location.battle()
@@ -329,6 +395,7 @@ def room5():
             else:
                 print('Please enter "y" or "n" only. Try again.')
     return
+
 
 def hestia(map: Map):
     map.player_location.battle()
@@ -340,11 +407,13 @@ def hestia(map: Map):
             exit()
     userDirection = None
     while True:
-        userDirection = str(input('Please enter a direction to move to another room: '))
+        userDirection = str(
+            input('Please enter a direction to move to another room: '))
         if userDirection.lower() in ['north', 'south', 'east', 'west']:
             break
         else:
-            print('Please enter a valid direction! You may enter "North", "South", "East" or "West". Try again!')
+            print(
+                'Please enter a valid direction! You may enter "North", "South", "East" or "West". Try again!')
     move_through_rooms(userDirection)
     hestia(map)
 
@@ -353,7 +422,7 @@ player_name = input("Enter your Name: ")
 
 while True:
     player_type = input(
-    "Choose your hero type: \n1. Shooter \n2. Boxer \n3. Sword-Fighter \nEnter fighter: ").lower()
+        "Choose your hero type: \n1. Shooter \n2. Boxer \n3. Sword-Fighter \nEnter fighter: ").lower()
     if player_type == 'shooter' or player_type == 'boxer' or player_type == 'sword-fighter':
         break
     else:
@@ -362,7 +431,6 @@ while True:
 player_hp = 3000
 
 p1 = Player(player_name, player_type, player_hp)
-player_weapons = ["Lazer Pistol"]
 
 map = Map(p1)
 print("\n\nWelcome to the kingdom of Hestia. For years Hestia has thrived because of a mysterious crystal rightfully dubbed: The sacred Jewel.")
@@ -370,4 +438,3 @@ print("The Sacred Jewel is the central power source for the kingdom. It provides
 print("Theives have managed to steal the Sacred Jewel and take it back to their own hide out.")
 print("As the Hero of Hestia it's up to you to navigate through the thieves hideout and the take the Jewel back. Without it Hestia will remain in darkness...\n\n\n")
 hestia(map)
-
