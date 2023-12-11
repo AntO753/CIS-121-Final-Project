@@ -413,7 +413,7 @@ def hestia(map: Map):
         else:
             print(
                 'Please enter a valid direction! You may enter "North", "South", "East" or "West". Try again!')
-    move_through_rooms(userDirection)
+    move_through_rooms(userDirection.lower())
     hestia(map)
 
 
