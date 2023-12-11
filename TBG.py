@@ -265,7 +265,6 @@ def room1():
         map.rooms[room_num].defeat()
         p1.add_weapons(v1.weapon)
         print('Congrats! You beat the Goon! You have received a Super Sword! It has been added to your inventory.')
-        print(p1.get_weapons())
     else:
         while True:
             deathChoice = str(
