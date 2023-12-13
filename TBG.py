@@ -134,7 +134,7 @@ def weapons_choice(player):
         while True:
             try:
                 choose_weapon = int(
-                    input("Choose the number asscoiated with the weapon you want to choose: "))
+                    input("Choose the number associated with the weapon you want to choose: "))
                 if 1 <= choose_weapon <= len(weapons):
                     return weapons[choose_weapon - 1]
                 else:
@@ -226,10 +226,7 @@ def battle(player, enemy):
 
         if player_choice.lower() == "a":
             perform_attack(player, enemy, player_weapon)
-
-        if player_choice.lower() == "a":
-            perform_attack(player, enemy, player_weapon)
-        if player_choice.lower() == 'd':
+        elif player_choice.lower() == 'd':
             perform_defense(enemy, player, enemy.weapon)
             p1.heal()
 
@@ -264,7 +261,7 @@ def room1():
     if p1.hp > 0:
         map.rooms[room_num].defeat()
         p1.add_weapons(v1.weapon)
-        print('Congrats! You beat the Goon! You have received a Super Sword! It has been added to your inventory.')
+        print('Congrats! You beat the Goon! You have received a Proton Rifle! It has been added to your inventory.')
     else:
         while True:
             deathChoice = str(
@@ -322,7 +319,7 @@ def room3():
     if p1.hp > 0:
         map.rooms[room_num].defeat()
         p1.add_weapons(v3.weapon)
-        print('Congrats! You beat the Hooligan! You have received a Rifle! It has been added to your inventory.')
+        print('Congrats! You beat the Hooligan! You have received a Plasma SMG! It has been added to your inventory.')
     else:
         while True:
             deathChoice = str(
